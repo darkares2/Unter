@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUdbyderAdapter", "ConsoleUdbyderAdapter\ConsoleUdbyderAdapter.csproj", "{43E47588-14AF-4CA9-94E3-A20D52D3039E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleKundeAdapter", "ConsoleKundeAdapter\ConsoleKundeAdapter.csproj", "{53F96ADD-043D-4D1D-9F30-FF000ADA733B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUdbyderService", "ConsoleUdbyderService\ConsoleUdbyderService.csproj", "{FB1D2767-AEF3-4B72-8D6A-B8DE3BDECC34}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleMaeglerService", "ConsoleMaeglerService\ConsoleMaeglerService.csproj", "{47263119-F7E3-4A06-A9CF-485A649150DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleBilletService", "ConsoleBilletService\ConsoleBilletService.csproj", "{22C30B50-13EC-43F6-BF56-65ACFF86631B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnterLib", "UnterLib\UnterLib.csproj", "{0D8A4611-3053-415F-911B-12E34247BCC3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{20C5F65B-53EE-4DA3-9EBE-D7EEBA37738E}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		kafka.yml = kafka.yml
+		README.md = README.md
+		zk.yml = zk.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{43E47588-14AF-4CA9-94E3-A20D52D3039E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43E47588-14AF-4CA9-94E3-A20D52D3039E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43E47588-14AF-4CA9-94E3-A20D52D3039E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43E47588-14AF-4CA9-94E3-A20D52D3039E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53F96ADD-043D-4D1D-9F30-FF000ADA733B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53F96ADD-043D-4D1D-9F30-FF000ADA733B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53F96ADD-043D-4D1D-9F30-FF000ADA733B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53F96ADD-043D-4D1D-9F30-FF000ADA733B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB1D2767-AEF3-4B72-8D6A-B8DE3BDECC34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB1D2767-AEF3-4B72-8D6A-B8DE3BDECC34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB1D2767-AEF3-4B72-8D6A-B8DE3BDECC34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB1D2767-AEF3-4B72-8D6A-B8DE3BDECC34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47263119-F7E3-4A06-A9CF-485A649150DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47263119-F7E3-4A06-A9CF-485A649150DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47263119-F7E3-4A06-A9CF-485A649150DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47263119-F7E3-4A06-A9CF-485A649150DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22C30B50-13EC-43F6-BF56-65ACFF86631B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22C30B50-13EC-43F6-BF56-65ACFF86631B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22C30B50-13EC-43F6-BF56-65ACFF86631B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22C30B50-13EC-43F6-BF56-65ACFF86631B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D8A4611-3053-415F-911B-12E34247BCC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D8A4611-3053-415F-911B-12E34247BCC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D8A4611-3053-415F-911B-12E34247BCC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D8A4611-3053-415F-911B-12E34247BCC3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4D63E8F3-7857-4608-BC3E-E5712E751A38}
+	EndGlobalSection
+EndGlobal
