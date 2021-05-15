@@ -16,6 +16,7 @@ namespace ConsoleUdbyderService
             ClientId = "UdbyderService"
         };
         const string statusTopic = "UdbyderAdapter.Status";
+        const string ticketTopic = "BilletService.Billet";
 
         public void sendStatus(Guid clientId, int status)
         {
@@ -26,6 +27,20 @@ namespace ConsoleUdbyderService
             using (var producer = new ProducerBuilder<Null, string>(config).Build())
             {
                 producer.Produce(statusTopic, new Message<Null, string> { Value = json });
+                producer.Flush();
+            }
+        }
+
+        public void getTicket(Guid clientId)
+        {
+            NewTicketMessage newTicketMessage = new NewTicketMessage()
+            {
+                clientId = clientId
+            };
+            string json = JsonSerializer.Serialize(newTicketMessage);
+            using (var producer = new ProducerBuilder<Null, string>(config).Build())
+            {
+                producer.Produce(ticketTopic, new Message<Null, string> { Value = json });
                 producer.Flush();
             }
         }

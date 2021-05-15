@@ -16,20 +16,13 @@ namespace ConsoleKundeAdapter
         int state = OFF;
         Guid clientId = Guid.Parse("a015149d-720a-452a-b007-648132812857");
         MessageSender messageSender = new MessageSender();
-        bool orderAcceptInput = false;
-        OrderMessage orderMessage;
-
+        
         public void Run()
         {
             while(true)
             {
                 try
                 {
-                    if (orderAcceptInput)
-                    {
-                        handlerOrderAccept();
-                        continue;
-                    }
                     int[] menuItems = menuAccordingToState();
                     var keyNumber = (int)Console.ReadKey(true).KeyChar;
                     if (menuItems.Contains(keyNumber))
@@ -46,59 +39,21 @@ namespace ConsoleKundeAdapter
             }
         }
 
-        private void handlerOrderAccept()
-        {
-            Console.WriteLine($"Tur med kunde: {orderMessage.clientId.ToString()}");
-            Console.WriteLine("Acceptér tur [J/N]");
-            var keyNumber = (int)Console.ReadKey(true).KeyChar;
-            if (keyNumber == 'J' || keyNumber == 'n')
-            {
-
-                OrderAcceptMessage orderAcceptMessage = new OrderAcceptMessage()
-                {
-                    clientId = this.clientId,
-                    location = new GeoData() { latitude = 55.6760968d, longitude = 12.5683371d },
-                    timestamp = DateTime.UtcNow,
-                    order = orderMessage
-                };
-                messageSender.sendOrderAccept(orderAcceptMessage);
-            }
-        }
-
         private void handleChoice(int keyNumber)
         {
             switch(state)
             {
                 case OFF:
                     handleOffChoice(keyNumber); break;
-                case LEDIG:
-                    handleLedigChoice(keyNumber); break;
-                case OPTAGET:
-                    handleOptagetChoice(keyNumber); break;
             }
         }
 
-        private void handleOptagetChoice(int keyNumber)
-        {
-            throw new NotImplementedException();
-        }
-
-        private void handleLedigChoice(int keyNumber)
-        {
-            switch (keyNumber)
-            {
-                case '1': messageSender.sendLocation(clientId, 55.6760968d, 12.5683371d); break;
-                case '2': messageSender.sendStatus(clientId, OFF); break;
-                default: throw new NotImplementedException();
-            }
-        }
-
-
+        
         private void handleOffChoice(int keyNumber)
         {
             switch(keyNumber)
             {
-                case '1': messageSender.sendStatus(clientId, LEDIG); break;
+                case '1': waiting(); break;
                 default: throw new NotImplementedException();
             }
         }
@@ -108,44 +63,36 @@ namespace ConsoleKundeAdapter
         [DllImport("kernel32.dll", SetLastError = true)]
         internal static extern IntPtr GetStdHandle(int nStdHandle);
 
+
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern bool CancelIoEx(IntPtr handle, IntPtr lpOverlapped);
-        internal void setStatus(StatusMessage statusMessage)
+        internal void waiting()
         {
-            lock(this)
+            state = WAITING;
+            messageSender.sendOrder(clientId, 55.6760968d, 12.5683371d);
+            Task.Delay(60000).ContinueWith(_ =>
             {
-                if (clientId.Equals(statusMessage.clientId))
+                if (state == WAITING)
                 {
-                    state = statusMessage.status;
+                    state = OFF;
+                    // Timeout => cancel the console read
                     var handle = GetStdHandle(STD_INPUT_HANDLE);
                     CancelIoEx(handle, IntPtr.Zero);
                 }
-            }
-
+            });
         }
-        internal void order(Guid clientId, OrderMessage orderMessage)
+        internal void orderAccept(OrderAcceptMessage orderAcceptMessage)
         {
-            lock (this)
-            {
-                if (this.clientId.Equals(clientId) && !orderAcceptInput)
-                {
-                    orderAcceptInput = true;
-                    Task.Delay(60000).ContinueWith(_ =>
-                    {
-                        if (orderAcceptInput)
-                        {
-                            orderAcceptInput = false;
-                            // Timeout => cancel the console read
-                            var handle = GetStdHandle(STD_INPUT_HANDLE);
-                            CancelIoEx(handle, IntPtr.Zero);
-                        }
-                    });
-                }
-            }
+            state = TRIP;
+            var handle = GetStdHandle(STD_INPUT_HANDLE);
+            CancelIoEx(handle, IntPtr.Zero);
         }
-        internal void orderAccept(Guid clientId, OrderAcceptMessage orderAcceptMessage)
+        internal void orderDone(OrderDoneMessage orderDoneMessage)
         {
-            throw new NotImplementedException();
+            Console.WriteLine("Trip done...");
+            state = OFF;
+            var handle = GetStdHandle(STD_INPUT_HANDLE);
+            CancelIoEx(handle, IntPtr.Zero);
         }
 
 
@@ -154,11 +101,14 @@ namespace ConsoleKundeAdapter
             switch(state)
             {
                 case OFF: 
-                    Console.WriteLine("Menu: 1) Ledig.");
+                    Console.WriteLine("Menu: 1) Unter!!!");
                     return new int[] { '1' };
-                case LEDIG:
-                    Console.WriteLine("Menu: 1) Lokation. 2) Off.");
-                    return new int[] { '1' , '2'};
+                case WAITING:
+                    Console.WriteLine("Waiting...");
+                    break;
+                case TRIP:
+                    Console.WriteLine("Driving...");
+                    break;
             }
             return new int[] { };
         }

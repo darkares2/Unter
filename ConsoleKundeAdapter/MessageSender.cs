@@ -13,51 +13,26 @@ namespace ConsoleKundeAdapter
         ProducerConfig config = new ProducerConfig
         {
             BootstrapServers = bootstrapServers,
-            ClientId = "UdbyderAdapter"
+            ClientId = "KundeAdapter"
         };
-        const string statusTopic = "UdbyderService.Status";
-        const string geoTopic = "UdbyderService.Geo";
-        const string orderAcceptTopic = "KundeAdapter.BestillingAccept";
+        const string orderTopic = "MaeglerService.Bestilling";
 
-        public void sendStatus(Guid clientId, int status)
+
+        public void sendOrder(Guid clientId, double latitude, double longitude)
         {
-            StatusMessage statusMessage = new StatusMessage();
-            statusMessage.clientId = clientId;
-            statusMessage.timestamp = DateTime.UtcNow;
-            statusMessage.status = status;
-            string json = JsonSerializer.Serialize(statusMessage);
+            OrderMessage orderMessage = new OrderMessage();
+            orderMessage.clientId = clientId;
+            orderMessage.timestamp = DateTime.UtcNow;
+            orderMessage.expiration = DateTime.UtcNow.AddMinutes(1);
+            orderMessage.location = new GeoData() { latitude = latitude, longitude = longitude };
+            string json = JsonSerializer.Serialize(orderMessage);
             using (var producer = new ProducerBuilder<Null, string>(config).Build())
             {
-                producer.Produce(statusTopic, new Message<Null, string> { Value = json });
+                producer.Produce(orderTopic, new Message<Null, string> { Value = json });
                 producer.Flush();
             }
-            Console.WriteLine($"Status {status} sent");
+            Console.WriteLine("Order sent");
         }
 
-        public void sendLocation(Guid clientId, double latitude, double longitude)
-        {
-            LocationMessage locationMessage = new LocationMessage();
-            locationMessage.clientId = clientId;
-            locationMessage.timestamp = DateTime.UtcNow;
-            locationMessage.location = new GeoData() { latitude = latitude, longitude = longitude };
-            string json = JsonSerializer.Serialize(locationMessage);
-            using (var producer = new ProducerBuilder<Null, string>(config).Build())
-            {
-                producer.Produce(geoTopic, new Message<Null, string> { Value = json });
-                producer.Flush();
-            }
-            Console.WriteLine("Location sent");
-        }
-
-        public void sendOrderAccept(OrderAcceptMessage orderAcceptMessage)
-        {
-            string json = JsonSerializer.Serialize(orderAcceptMessage);
-            using (var producer = new ProducerBuilder<Null, string>(config).Build())
-            {
-                producer.Produce(orderAcceptTopic, new Message<Null, string> { Value = json });
-                producer.Flush();
-            }
-            Console.WriteLine("Order accept sent");
-        }
     }
 }

@@ -6,7 +6,9 @@ namespace ConsoleBilletService
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("BilletService");
+            Console.WriteLine("---------------------");
+            new BilletService().run();
         }
     }
 }

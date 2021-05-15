@@ -18,7 +18,7 @@ namespace ConsoleMaeglerService
             {
                 NpgsqlConnection conn = new NpgsqlConnection(connectString);
                 conn.Open();
-                string select = "SELECT clientId FROM status WHERE status = 1 ORDER BY stamp DESC LIMIT 1;";
+                string select = "SELECT clientId FROM status WHERE status = 1 ORDER BY sequence ASC LIMIT 1;";
                 var cmd = new NpgsqlCommand(select, conn);
                 cmd.CommandType = CommandType.Text;
                 clientId = (Guid)cmd.ExecuteScalar();

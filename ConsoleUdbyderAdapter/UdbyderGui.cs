@@ -17,7 +17,7 @@ namespace ConsoleUdbyderAdapter
         Guid clientId = Guid.Parse("23acf2f8-d251-44a7-a07f-7e8257880363");
         MessageSender messageSender = new MessageSender();
         bool orderAcceptInput = false;
-        OrderMessage orderMessage;
+        OrderMessage currentOrder;
 
         public void Run()
         {
@@ -48,20 +48,21 @@ namespace ConsoleUdbyderAdapter
 
         private void handlerOrderAccept()
         {
-            Console.WriteLine($"Tur med kunde: {orderMessage.clientId.ToString()}");
+            Console.WriteLine($"Tur med kunde: {currentOrder.clientId.ToString()}");
             Console.WriteLine("Acceptér tur [J/N]");
             var keyNumber = (int)Console.ReadKey(true).KeyChar;
-            if (keyNumber == 'J' || keyNumber == 'n')
+            if (keyNumber == 'J' || keyNumber == 'j')
             {
-
                 OrderAcceptMessage orderAcceptMessage = new OrderAcceptMessage()
                 {
                     clientId = this.clientId,
                     location = new GeoData() { latitude = 55.6760968d, longitude = 12.5683371d },
                     timestamp = DateTime.UtcNow,
-                    order = orderMessage
+                    order = currentOrder
                 };
                 messageSender.sendOrderAccept(orderAcceptMessage);
+                state = OPTAGET;
+                orderAcceptInput = false;
             }
         }
 
@@ -80,7 +81,14 @@ namespace ConsoleUdbyderAdapter
 
         private void handleOptagetChoice(int keyNumber)
         {
-            throw new NotImplementedException();
+            switch (keyNumber)
+            {
+                case '1': 
+                    messageSender.sendOrderDone(clientId, currentOrder, 55.6760968d, 12.5683371d);
+                    messageSender.sendStatus(clientId, LEDIG);
+                    break;
+                default: throw new NotImplementedException();
+            }
         }
 
         private void handleLedigChoice(int keyNumber)
@@ -125,11 +133,15 @@ namespace ConsoleUdbyderAdapter
         }
         internal void order(Guid clientId, OrderMessage orderMessage)
         {
+            Console.WriteLine($"Bestilling modtaget fra {clientId.ToString()}");
             lock (this)
             {
                 if (this.clientId.Equals(clientId) && !orderAcceptInput)
                 {
                     orderAcceptInput = true;
+                    currentOrder = orderMessage;
+                    var handle = GetStdHandle(STD_INPUT_HANDLE);
+                    CancelIoEx(handle, IntPtr.Zero);
                     Task.Delay(60000).ContinueWith(_ =>
                     {
                         if (orderAcceptInput)
@@ -154,6 +166,9 @@ namespace ConsoleUdbyderAdapter
                 case LEDIG:
                     Console.WriteLine("Menu: 1) Lokation. 2) Off.");
                     return new int[] { '1' , '2'};
+                case OPTAGET:
+                    Console.WriteLine("Menu: 1) Destination.");
+                    return new int[] { '1' };
             }
             return new int[] { };
         }

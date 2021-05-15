@@ -7,26 +7,24 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using UnterLib;
 
-namespace ConsoleKundeAdapter
+namespace ConsoleBilletService
 {
-    public class Consumer
+    public class BilletService
     {
-        KundeGui kundeGui;
         static string bootstrapServers = "localhost:9092,localhost:9093, localhost:9094";
-        const string orderTopic = "KundeAdapter.BestillingAccept";
-        const string billTopic = "Faktura";
+        const string ticketTopic = "BilletService.Billet";
         ConsumerConfig config = new ConsumerConfig
         {
             BootstrapServers = "localhost:9092,localhost:9093, localhost:9094",
-            GroupId = "KundeAdapter",
+            GroupId = "BilletService",
             AutoOffsetReset = AutoOffsetReset.Earliest
         };
-        List<String> topics = new List<String>() { orderTopic, billTopic};
-
-
-        public void run(KundeGui kundeGui)
+        List<String> topics = new List<String>() { ticketTopic };
+        DatabaseHandler databaseHandler = new DatabaseHandler();
+        MessageSender messageSender = new MessageSender();
+        public void run()
         {
-            this.kundeGui = kundeGui;
+            databaseHandler.init();
             CreateTopics().Wait();
             using (var consumer = new ConsumerBuilder<Ignore, string>(config).Build())
             {
@@ -36,26 +34,20 @@ namespace ConsoleKundeAdapter
                     var consumeResult = consumer.Consume();
                     if (consumeResult == null)
                         break;
-                   if (consumeResult.Topic.Equals(orderTopic))
-                        handleOrderMessage(JsonSerializer.Deserialize<OrderAcceptMessage>(consumeResult.Message.Value));
-                   else if (consumeResult.Topic.Equals(billTopic))
-                        handleBillMessage(JsonSerializer.Deserialize<OrderDoneMessage>(consumeResult.Message.Value));
+                    if (consumeResult.Topic.Equals(ticketTopic))
+                        handleTicketMessage(JsonSerializer.Deserialize<NewTicketMessage>(consumeResult.Message.Value));
+
                 }
             }
-
         }
 
-        private void handleBillMessage(OrderDoneMessage orderDoneMessage)
+        private void handleTicketMessage(NewTicketMessage newTicketMessage)
         {
-            kundeGui.orderDone(orderDoneMessage);
+            TicketMessage ticket = new TicketMessage();
+            ticket.clientId = newTicketMessage.clientId;
+            ticket.sequence = databaseHandler.getNextSequence();
+            messageSender.sendTicket(ticket);
         }
-
-        private void handleOrderMessage(OrderAcceptMessage orderAcceptMessage)
-        {
-            kundeGui.orderAccept(orderAcceptMessage);
-
-        }
-
 
         private async Task CreateTopics()
         {
@@ -63,9 +55,9 @@ namespace ConsoleKundeAdapter
             {
                 try
                 {
-                    if (adminClient.GetMetadata(orderTopic, TimeSpan.FromSeconds(10)) == null)
+                    if (adminClient.GetMetadata(ticketTopic, TimeSpan.FromSeconds(10)) == null)
                         await adminClient.CreateTopicsAsync(new TopicSpecification[] {
-                            new TopicSpecification { Name = orderTopic, ReplicationFactor = 3, NumPartitions = 3 }
+                            new TopicSpecification { Name = ticketTopic, ReplicationFactor = 3, NumPartitions = 3 }
                         });
                 }
                 catch (CreateTopicsException e)

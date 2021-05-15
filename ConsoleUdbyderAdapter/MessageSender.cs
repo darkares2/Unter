@@ -18,6 +18,7 @@ namespace ConsoleUdbyderAdapter
         const string statusTopic = "UdbyderService.Status";
         const string geoTopic = "UdbyderService.Geo";
         const string orderAcceptTopic = "KundeAdapter.BestillingAccept";
+        const string receiptTopic = "FakturaService.BestillingUdfort";
 
         public void sendStatus(Guid clientId, int status)
         {
@@ -58,6 +59,25 @@ namespace ConsoleUdbyderAdapter
                 producer.Flush();
             }
             Console.WriteLine("Order accept sent");
+        }
+
+        internal void sendOrderDone(Guid clientId, OrderMessage currentOrder, double latitude, double longitude)
+        {
+            OrderDoneMessage orderDoneMessage = new OrderDoneMessage()
+            {
+                clientId = clientId,
+                timestamp = DateTime.UtcNow,
+                location = new GeoData() { latitude = latitude, longitude = longitude },
+                order = currentOrder
+            };
+            string json = JsonSerializer.Serialize(orderDoneMessage);
+            using (var producer = new ProducerBuilder<Null, string>(config).Build())
+            {
+                producer.Produce(receiptTopic, new Message<Null, string> { Value = json });
+                producer.Flush();
+            }
+            Console.WriteLine("Order done sent");
+
         }
     }
 }

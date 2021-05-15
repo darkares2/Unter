@@ -41,6 +41,7 @@ namespace ConsoleUdbyderService
                                     "  clientId UUID NOT NULL," +
                                     "  stamp TIMESTAMP WITH TIME ZONE NOT NULL," +
                                     "  status integer," +
+                                    "  sequence bigint," +
                                     "CONSTRAINT status_pkey PRIMARY KEY(clientId))";
             command = new NpgsqlCommand(statusTable, conn);
             command.ExecuteNonQuery();
@@ -73,6 +74,29 @@ namespace ConsoleUdbyderService
                 throw;
             }
             return done;
+        }
+
+        internal void updateSequence(Guid clientId, UInt64 sequence)
+        {
+            try
+            {
+                NpgsqlConnection conn = new NpgsqlConnection(connectString);
+                conn.Open();
+                string insert = "UPDATE status SET sequence = :sequence WHERE clientId = :clientId;";
+                var cmd = new NpgsqlCommand(insert, conn);
+                cmd.Parameters.AddWithValue("clientId", clientId);
+                cmd.Parameters.AddWithValue("sequence", (Int64)sequence);
+                cmd.Prepare();
+                cmd.CommandType = CommandType.Text;
+                int count = cmd.ExecuteNonQuery();
+                conn.Close();
+                Console.WriteLine($"Updated sequence");
+            }
+            catch (Exception msg)
+            {
+                Console.WriteLine($"failed to init db {msg.Message}");
+                throw;
+            }
         }
 
         internal void insertLocation(LocationMessage locationMessage)
