@@ -6,7 +6,10 @@ namespace ConsoleUdbyderService
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            Console.WriteLine("UdbyderService");
+            Console.WriteLine("----------------------------");
+            new UdbyderService().run();
+
         }
     }
 }
