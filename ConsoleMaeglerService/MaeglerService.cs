@@ -48,7 +48,6 @@ namespace ConsoleMaeglerService
                 // TODO: Check if busy in redis.
                 messageSender.sendBestilling(clientId.Value, orderMessage);
                 Console.WriteLine("Would have marked supplier busy in redis");
-                Console.WriteLine("Would have sent order to supplier");
             } else
             {
                 Console.WriteLine("No suppliers available... Ignore...");
